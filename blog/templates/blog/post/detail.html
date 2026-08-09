@@ -1,0 +1,69 @@
+{% extends "blog/base.html" %}
+
+{% block title %}{{ post.title }}{% endblock %}
+
+{% block content %}
+<article class="space-y-6">
+    <h1 class="text-3xl font-bold text-gray-900">{{ post.title }}</h1>
+    <p class="text-xs text-gray-500">
+        By {{ post.author }} | Published on {{ post.publish|date:"F j, Y" }}
+    </p>
+
+    <div class="text-gray-700 leading-relaxed space-y-4 text-sm pt-4">
+        {{ post.body|linebreaks }}
+    </div>
+
+    <!-- Tags & Share Button -->
+    <div class="flex items-center justify-between border-t border-b border-gray-200 py-4 my-8">
+        <div class="flex items-center space-x-2 text-xs">
+            <span class="text-gray-500 font-medium">Tags:</span>
+            {% for tag in post.tags.all %}
+                <a href="{% url 'blog:post_list_by_tag' tag.slug %}" class="rounded-md border border-gray-300 px-2.5 py-1 text-gray-600 hover:bg-gray-50">
+                    {{ tag.name }}
+                </a>
+            {% endfor %}
+        </div>
+        <a href="{% url 'blog:post_share' post.id %}" class="rounded-md border border-gray-300 px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50">
+            Share this post via email
+        </a>
+    </div>
+</article>
+
+<!-- Comments Section -->
+<section class="mt-10 space-y-8">
+    <h3 class="text-lg font-bold text-gray-900">Comments</h3>
+    
+    {% for comment in comments %}
+        <div class="text-xs space-y-1">
+            <p class="font-bold text-gray-900">{{ comment.name }} said:</p>
+            <p class="text-gray-700">{{ comment.body }}</p>
+            <p class="text-gray-400">Posted on {{ comment.created|date:"F j, Y, g:i a" }}</p>
+        </div>
+    {% empty %}
+        <p class="text-xs text-gray-500">There are no comments yet.</p>
+    {% endfor %}
+
+    <!-- Add Comment Form -->
+    <div class="pt-6 border-t border-gray-100">
+        <h4 class="text-sm font-bold text-gray-900 mb-4">Add a new comment</h4>
+        <form action="{% url 'blog:post_comment' post.id %}" method="post" class="space-y-4 max-w-sm">
+            {% csrf_token %}
+            <div>
+                <label class="block text-xs font-medium text-gray-700 mb-1">Your name</label>
+                <input type="text" name="name" required placeholder="Your name" class="w-full rounded-md border border-gray-300 px-3 py-2 text-xs focus:border-blue-500 focus:outline-none">
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-gray-700 mb-1">Your email</label>
+                <input type="email" name="email" required placeholder="Your email" class="w-full rounded-md border border-gray-300 px-3 py-2 text-xs focus:border-blue-500 focus:outline-none">
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-gray-700 mb-1">Your comment</label>
+                <textarea name="body" rows="4" required placeholder="Your comment" class="w-full rounded-md border border-gray-300 px-3 py-2 text-xs focus:border-blue-500 focus:outline-none"></textarea>
+            </div>
+            <button type="submit" class="rounded-md border border-gray-300 px-4 py-2 text-xs font-medium text-gray-800 hover:bg-gray-100">
+                Submit Comment
+            </button>
+        </form>
+    </div>
+</section>
+{% endblock %}
